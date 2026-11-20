@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Group & Selected Tab URL Copier",
+  "version": "1.3.0",
+  "description": "Copy selected/group tab URLs to the clipboard or open pasted URL lists.",
+  "permissions": ["tabs", "tabGroups", "contextMenus", "clipboardWrite", "offscreen"],
+  "background": { "service_worker": "background.js" },
+  "action": {
+    "default_title": "Copy or open tab URLs",
+    "default_popup": "popup.html"
+  }
+}
