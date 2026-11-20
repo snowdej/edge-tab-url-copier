@@ -10,9 +10,14 @@
     p { margin: 0 0 10px; color: #555; line-height: 1.4; }
     textarea { box-sizing: border-box; width: 100%; min-height: 125px; resize: vertical; font: 12px Consolas, monospace; }
     button { width: 100%; margin-top: 8px; padding: 8px; cursor: pointer; }
+    button.confirm { background: #fff4ce; border: 1px solid #c19c00; }
     label { display: block; margin-top: 9px; }
     #group-name { box-sizing: border-box; width: 100%; margin-top: 6px; padding: 6px; }
+    #group-name:disabled { opacity: 0.5; }
     #status { min-height: 18px; margin-top: 8px; color: #333; }
+    hr { border: 0; border-top: 1px solid #ddd; margin: 12px 0 4px; }
+    .small { font-size: 12px; color: #666; }
+    kbd { font: 11px Consolas, monospace; border: 1px solid #ccc; border-radius: 3px; padding: 0 3px; }
   </style>
 </head>
 <body>
@@ -20,10 +25,19 @@
   <p>Paste one URL per line, then open them as tabs.</p>
   <textarea id="url-list" autofocus placeholder="https://example.com&#10;https://example.org"></textarea>
   <label><input type="checkbox" id="make-group"> Put these tabs in a new group</label>
-  <input id="group-name" type="text" value="Pasted links" aria-label="New tab group name">
+  <input id="group-name" type="text" value="Pasted links" aria-label="New tab group name" disabled>
   <button id="open">Open pasted URLs</button>
+  <hr>
   <button id="copy">Copy selected tabs or active group</button>
+  <label class="small">Line endings when copying:
+    <select id="eol">
+      <option value="auto">Match my system</option>
+      <option value="crlf">Windows (CRLF)</option>
+      <option value="lf">Unix (LF)</option>
+    </select>
+  </label>
   <div id="status" role="status" aria-live="polite"></div>
+  <p class="small" id="shortcut-hint" hidden>Shortcut: <kbd id="shortcut"></kbd></p>
   <script src="popup.js"></script>
 </body>
 </html>
