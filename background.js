@@ -62,7 +62,8 @@ let copyQueue = Promise.resolve();
 
 function copyTabs(tabs) {
   const run = async () => {
-    const urls = tabs.map((tab) => tab.url).filter(Boolean);
+    // A tab that is still loading has an empty url; its address is in pendingUrl.
+    const urls = tabs.map((tab) => tab.url || tab.pendingUrl).filter(Boolean);
     if (!urls.length) throw new Error("No copyable URLs found.");
     await writeClipboard(urls.join(await lineEnding()));
     await flashBadge("OK", "#16803c", 1600);
@@ -96,7 +97,16 @@ async function openUrls(urls, makeGroup, groupTitle) {
 
   const activeTab = (await chrome.tabs.query({ active: true, lastFocusedWindow: true }))[0];
   const windowId = activeTab?.windowId;
-  let index = activeTab ? activeTab.index + 1 : undefined;
+  let index;
+  if (activeTab) {
+    // Open after the current tab — or after its whole group, so the new tabs
+    // don't land inside (or get pushed in front of) an existing group.
+    index = activeTab.index + 1;
+    if (activeTab.groupId !== chrome.tabGroups.TAB_GROUP_ID_NONE) {
+      const groupTabs = await chrome.tabs.query({ groupId: activeTab.groupId });
+      index = Math.max(...groupTabs.map((tab) => tab.index)) + 1;
+    }
+  }
   const openedTabs = [];
   let failure;
 

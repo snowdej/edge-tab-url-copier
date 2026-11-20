@@ -1,23 +1,24 @@
+// Writes text to the clipboard from the offscreen document.
+// Uses a copy-event handler with setData so the text goes to the clipboard
+// exactly as given (copying a textarea selection would rewrite line endings).
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.target !== "offscreen" || message?.type !== "COPY_URLS") return;
 
-  (async () => {
-    try {
-      const textarea = document.createElement("textarea");
-      textarea.value = message.text;
-      textarea.setAttribute("readonly", "");
-      textarea.style.position = "fixed";
-      textarea.style.left = "-9999px";
-      document.body.appendChild(textarea);
-      textarea.select();
-      const ok = document.execCommand("copy");
-      textarea.remove();
-      if (!ok) throw new Error("The browser refused the clipboard write.");
-      sendResponse({ ok: true });
-    } catch (error) {
-      sendResponse({ ok: false, error: error.message });
-    }
-  })();
+  let written = false;
+  const onCopy = (event) => {
+    event.clipboardData.setData("text/plain", message.text);
+    event.preventDefault();
+    written = true;
+  };
 
-  return true;
+  document.addEventListener("copy", onCopy, { once: true });
+  try {
+    const ok = document.execCommand("copy");
+    if (!ok || !written) throw new Error("The browser refused the clipboard write.");
+    sendResponse({ ok: true });
+  } catch (error) {
+    sendResponse({ ok: false, error: error.message });
+  } finally {
+    document.removeEventListener("copy", onCopy);
+  }
 });

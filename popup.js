@@ -30,10 +30,15 @@ eolSelect.addEventListener("change", () => {
 
 chrome.commands.getAll().then((commands) => {
   const shortcut = commands.find((c) => c.name === "copy-urls")?.shortcut;
+  const hint = document.getElementById("shortcut-hint");
   if (shortcut) {
     document.getElementById("shortcut").textContent = shortcut;
-    document.getElementById("shortcut-hint").hidden = false;
+  } else {
+    // The suggested key can be unavailable (e.g. taken by another extension).
+    const scheme = navigator.userAgent.includes("Edg/") ? "edge" : "chrome";
+    hint.textContent = `Tip: set a copy shortcut at ${scheme}://extensions/shortcuts`;
   }
+  hint.hidden = false;
 });
 
 // ---------- Opening pasted URLs ----------
